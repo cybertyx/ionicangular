@@ -17,21 +17,23 @@ $this->post('register', 'Api\Auth\RegisterController@register');
 $this->post('login', 'Api\Auth\LoginController@login');
 $this->post('refresh', 'Api\Auth\LoginController@refresh');
 
-$this->middleware('auth:api')->group(function () {
+$this->group(['middleware' => 'cors'], function() {
+    $this->middleware('auth:api')->group(function () {
 
-    $this->group(['prefix' => 'client','middleware'=>'oauth.checkrole:client'], function () {
-        Route::resource('order', 'Api\Client\ClientCheckoutController', ['except' => ['create', 'update', 'destroy']]);
-    });
-
-    $this->group(['prefix' => 'deliveryman','middleware'=>'oauth.checkrole:deliveryman'], function () {
-        $this->get('pedidos', function() {
-            return [
-                'id' => 1,
-                'client' => 'Luiz Carlos - Entregador',
-                'total' => 10
-            ];
+        $this->group(['prefix' => 'client', 'middleware' => 'oauth.checkrole:client'], function () {
+            Route::resource('order', 'Api\Client\ClientCheckoutController', ['except' => ['create', 'update', 'destroy']]);
         });
+
+        $this->group(['prefix' => 'deliveryman', 'middleware' => 'oauth.checkrole:deliveryman'], function () {
+            $this->get('pedidos', function() {
+                return [
+                    'id' => 1,
+                    'client' => 'Luiz Carlos - Entregador',
+                    'total' => 10
+                ];
+            });
+        });
+
+        $this->post('logout', 'Api\Auth\LoginController@logout');
     });
-    
-    $this->post('logout', 'Api\Auth\LoginController@logout');
 });
